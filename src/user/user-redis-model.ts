@@ -4,6 +4,7 @@ import { McmsDi } from "~helpers/mcms-component.decorator";
 import { IBaseImageModel, IGenericObject } from "~models/general";
 import { Entity, Schema } from "redis-om";
 import { AuthService } from "~root/auth/auth.service";
+import { ISite } from "~root/client/client.service";
 
 
 export interface IUserRedisModel  {
@@ -21,6 +22,7 @@ export interface IUserRedisModel  {
   thumb?: IBaseImageModel;
   createdAt?: Date;
   updatedAt?: Date;
+  allowedSites?: ISite[];
 }
 
 @Injectable()

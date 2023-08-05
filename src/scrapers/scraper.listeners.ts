@@ -1,18 +1,12 @@
 import { Injectable } from "@nestjs/common";
 import { OnEvent } from "@nestjs/event-emitter";
 import { IScraperJobPayload, ScraperEvents } from "~scrapers/base-scraper.service";
-import { AmazonScraperService } from "~scrapers/amazon.scraper.service";
-import { getStoreProperty } from "~root/state";
 import { ClientService } from "~root/client/client.service";
 import { QueueService } from "~root/queue/queue.service";
 
 
 @Injectable()
 export class ScraperListeners {
-/*  @OnEvent('app.loaded')
-  async onAppLoaded() {
-    // await (new ScraperListeners()).onScrapeAddedToList({clientId: 'techSalon', url: 'adsfadsf'})
-  }*/
 
   @OnEvent(ScraperEvents.SCRAPE_ADDED_TO_LIST)
   async onScrapeAddedToList(payload: IScraperJobPayload) {

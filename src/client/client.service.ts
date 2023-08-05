@@ -1,6 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { store } from "~root/state";
 
+export interface ISite {
+  id: string;
+  name: string;
+  url: string;
+  description: string;
+}
+
 @Injectable()
 export class ClientService {
   protected config;

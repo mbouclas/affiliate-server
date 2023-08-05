@@ -25,10 +25,12 @@ export class AuthController {
       return { success: false, message: e.message, code: e.getCode() };
     }
 
+    const userService = new UserService();
+    const user = await userService.findOne({email: data.email});
 
-    const user = await new UserService().findOne({email: data.email});
-
+    user.allowedSites = userService.getUserAllowedSites(user);
     session.user = AuthService.sanitizeUserModel(user);
+  // add all the stores
 
     result.sessionId = session.id;
     return {...user, ...result};

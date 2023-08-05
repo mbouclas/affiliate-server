@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { IUserRedisModel, UserRedisModel } from "~user/user-redis-model";
 import { IGenericObject } from "~models/general";
 import { AuthService } from "~root/auth/auth.service";
+import { store } from "~root/state";
+import { ClientService } from "~root/client/client.service";
 
 @Injectable()
 export class UserService {
@@ -39,5 +41,30 @@ export class UserService {
 
   async delete(id: string) {
 
+  }
+
+  getUserAllowedSites(user: IUserRedisModel) {
+    const allSites = (new ClientService).getClients();
+
+    if (user.clientId === '*') {
+      return allSites.map(site => ({
+        id: site.id,
+        name: site.name,
+        url: site.url,
+        description: site.description,
+      }));
+    }
+
+    const sites = user.clientId.split(',');
+
+    return sites.map(site => {
+      const found = allSites.find(s => s.id === site);
+      return {
+        id: found.id,
+        name: found.name,
+        url: found.url,
+        description: found.description,
+      }
+    });
   }
 }
