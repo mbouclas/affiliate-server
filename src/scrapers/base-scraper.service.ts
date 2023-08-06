@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import puppeteer from 'puppeteer-extra'
-import StealthPlugin from 'puppeteer-extra-plugin-stealth'
 import type { Browser, Page } from 'puppeteer';
 import { throttleAsyncRequests } from "~helpers/requests";
 import { store } from "~root/state";
@@ -11,6 +10,7 @@ import { SharedModule } from "~shared/shared.module";
 import { QueueService } from "~root/queue/queue.service";
 import { v4 } from 'uuid';
 const crypto = require('crypto');
+const StealthPlugin = require('puppeteer-extra-plugin-stealth')
 
 export enum ScraperEvents {
   SCRAPE = 'scrape',
