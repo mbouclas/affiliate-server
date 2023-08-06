@@ -1,4 +1,4 @@
-import { BaseRedisModel } from "~shared/base-redis.model";
+import { BaseRedisModel, ISearchableField } from "~shared/base-redis.model";
 import { Injectable } from "@nestjs/common";
 import { McmsDi } from "~helpers/mcms-component.decorator";
 import { IBaseImageModel, IGenericObject } from "~models/general";
@@ -33,6 +33,24 @@ export interface IUserRedisModel  {
 export class UserRedisModel extends BaseRedisModel {
   defaultSort = 'createdAt';
   defaultWay: 'ASC' | 'DESC' = 'DESC';
+  searchableFields: ISearchableField[] = [
+    {
+      name: 'firstName',
+      type: 'text'
+    },
+    {
+      name: 'lastName',
+      type: 'text'
+    },
+    {
+      name: 'email',
+      type: 'text'
+    },
+    {
+      name: 'active',
+      type: 'boolean'
+    }
+  ];
 
   schema() {
     return  new Schema('user', {
@@ -63,6 +81,7 @@ export class UserRedisModel extends BaseRedisModel {
 
     // check if the user is there
     const exists = await this.findOne({email: item.email});
+
     if (exists) {
       return AuthService.sanitizeUserModel(exists as IUserRedisModel);
     }

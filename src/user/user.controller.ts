@@ -31,7 +31,6 @@ export class UserController {
   }
 
   @Post('')
-  @UseInterceptors(AppInterceptor)
   async store(@Req() req: Request, @Body() data: CreateUserDto) {
     try {
       return await new UserService().store(data);

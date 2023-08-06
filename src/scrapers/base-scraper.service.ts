@@ -104,7 +104,7 @@ export class BaseScraperService {
       .use(StealthPlugin())
       .launch({
         executablePath: executablePath(),
-        headless: true,
+        headless: 'new',
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
 
