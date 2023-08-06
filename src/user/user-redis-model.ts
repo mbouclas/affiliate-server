@@ -44,7 +44,7 @@ export class UserRedisModel extends BaseRedisModel {
     },
     {
       name: 'email',
-      type: 'text'
+      type: 'string'
     },
     {
       name: 'active',
@@ -56,7 +56,7 @@ export class UserRedisModel extends BaseRedisModel {
     return  new Schema('user', {
       firstName: { type: 'text', sortable: true },
       lastName: { type: 'text', sortable: true },
-      email: { type: 'text', sortable: true },
+      email: { type: 'string',  normalized: false },
       active: { type: 'boolean' },
       password: { type: 'string' },
       type: { type: 'string' },
@@ -81,7 +81,7 @@ export class UserRedisModel extends BaseRedisModel {
 
     // check if the user is there
     const exists = await this.findOne({email: item.email});
-
+console.log('---------',exists)
     if (exists) {
       return AuthService.sanitizeUserModel(exists as IUserRedisModel);
     }

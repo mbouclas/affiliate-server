@@ -70,6 +70,7 @@ export class AuthService {
   async login(email: string, password: string): Promise<ILoginResult> {
     //lookup for the user
     const user = await this.userModel.findOne({email }) as IUserRedisModel;
+    console.log('*******', user);
     if (!user) {
       throw new UserNotFoundException('USER_NOT_FOUND', '500.0' );
     }

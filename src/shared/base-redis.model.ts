@@ -70,6 +70,14 @@ export class BaseRedisModel {
     }
   }
 
+  async findOne(filters: IGenericObject): Promise<IBaseRedisModel> {
+    const repo = await this.getRepo();
+
+    const s = this.buildQuery(filters, repo);
+
+    return await s.return.first() as unknown as IBaseRedisModel;
+  }
+
   buildQuery(filters: IGenericObject, repo: Repository) {
     const query = repo.search();
 
@@ -80,8 +88,12 @@ export class BaseRedisModel {
       }
 
       if (field.type === 'text') {
-        query.where(key).matches(`*${filters[key]}*`);
+        query.where(key).match(`*${filters[key]}*`);
+        continue;
+      }
 
+      if (field.type === 'boolean') {
+        query.where(key).eq(filters[key]);
         continue;
       }
 
@@ -114,13 +126,7 @@ export class BaseRedisModel {
     return  await s.return.count();
   }
 
-  async findOne(filters: IGenericObject): Promise<IBaseRedisModel> {
-    const repo = await this.getRepo();
 
-    const s = this.buildQuery(filters, repo);
-
-    return await s.return.first() as unknown as IBaseRedisModel;
-  }
 
   async getById(id: string) {
     const repo = await this.getRepo();

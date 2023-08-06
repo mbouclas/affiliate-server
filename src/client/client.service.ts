@@ -77,10 +77,10 @@ export class ClientService {
     const defaults = this.getDefaults();
     const userModel = new UserRedisModel();
     const userExists = await userModel.findOne({email: defaults.user.email});
+
     if (!userExists) {
       console.log('Creating default user');
       await new UserService().store(defaults.user);
     }
-
   }
 }
