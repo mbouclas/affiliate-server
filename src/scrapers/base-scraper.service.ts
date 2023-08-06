@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import {launch, Browser} from 'puppeteer';
+import puppeteer from 'puppeteer-extra'
+import StealthPlugin from 'puppeteer-extra-plugin-stealth'
+import type { Browser, Page } from 'puppeteer';
 import { throttleAsyncRequests } from "~helpers/requests";
 import { store } from "~root/state";
 import { IClientConfig } from "~root/client/models/client.model";
@@ -46,7 +48,9 @@ export class BaseScraperService {
   async init(clientId: string, windowSize = {width: 1200, height: 1080}) {
     this.config = store.getState().configs["scrapers"];
     this.client = (new ClientService()).getClient(clientId);
-    this.browser = await launch({
+    this.browser = await puppeteer
+      .use(StealthPlugin())
+      .launch({
       headless: 'new',
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
