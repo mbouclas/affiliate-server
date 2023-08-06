@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { store } from "~root/state";
+import { ElasticSearchService } from "~es/elastic-search.service";
+import { UserRedisModel } from "~user/user-redis-model";
+import { UserService } from "~user/user.service";
 
 export interface ISite {
   id: string;
@@ -19,6 +22,10 @@ export class ClientService {
 
   getClient(id: string) {
     return store.getState().configs["clients"]['available'].find(client => client.id === id);
+  }
+
+  getDefaults() {
+    return store.getState().configs["clients"]['defaults'];
   }
 
   static getConfigProperty(clientId: string, key: string, obj?: any) {
@@ -51,4 +58,29 @@ export class ClientService {
   }
 
 
+  async init() {
+    // Check if all the ES indexes exist
+    const clients = this.getClients();
+    const es = ElasticSearchService.newInstance();
+    for (const client of clients) {
+      const exists = await es.indexExists(client.elasticSearch.index);
+      if (exists) {continue;}
+      try {
+        await es.createIndex(client.elasticSearch.index, client.elasticSearch.indexTemplate);
+      }
+      catch (e) {
+        console.log(`Error creating index ${client.elasticSearch.index}: ${e.message}`, e);
+      }
+    }
+
+    // now check if there's a default user
+    const defaults = this.getDefaults();
+    const userModel = new UserRedisModel();
+    const userExists = await userModel.findOne({email: defaults.user.email});
+    if (!userExists) {
+      console.log('Creating default user');
+      await new UserService().store(defaults.user);
+    }
+
+  }
 }
