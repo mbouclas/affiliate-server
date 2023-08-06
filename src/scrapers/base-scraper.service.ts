@@ -58,7 +58,8 @@ export class BaseScraperService {
     this.page = await this.browser.newPage();
 
     await this.page.setViewport({width: windowSize.width || 1200, height: windowSize.height || 1080});
-
+    await this.page.setUserAgent(
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36');
   }
 
   async processUrls(urls: IScraperJobPayload[]) {
