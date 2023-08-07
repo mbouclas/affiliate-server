@@ -24,7 +24,7 @@ export class BaseRedisModel {
 
   ];
 
-  generateId(params?: IGenericObject) {
+  generateId(params?: IGenericObject): string {
     if (!params) {
       return v4();
     }

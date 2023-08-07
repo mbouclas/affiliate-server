@@ -9,6 +9,7 @@ import { ProductRedisModel } from "~root/product/product-redis-model";
 import { SharedModule } from "~shared/shared.module";
 import { QueueService } from "~root/queue/queue.service";
 import { v4 } from 'uuid';
+import { IGenericObject } from "~models/general";
 const crypto = require('crypto');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth')
 const { executablePath } = require("puppeteer");
@@ -17,6 +18,7 @@ export enum ScraperEvents {
   SCRAPE = 'scrape',
   SCRAPE_ERROR = 'scrape_error',
   SCRAPE_SUCCESS = 'scrape_success',
+  SCRAPE_FAILED = 'scrape_failed',
   SCRAPE_ADDED_TO_LIST = 'scrape_added_to_list',
   SCRAPE_REMOVED_FROM_LIST = 'scrape_removed_from_list',
 }
@@ -27,6 +29,12 @@ export interface IScraperJobPayload {
   clientId: string;
   id: number|string;
   affiliate: string;
+}
+
+export interface IScraperFailedJobPayload {
+  product: IGenericObject;
+  item: IScraperJobPayload;
+  e: Error;
 }
 
 @Injectable()
@@ -100,15 +108,19 @@ export class BaseScraperService {
   async init(clientId: string, windowSize = {width: 1200, height: 1080}) {
     this.config = store.getState().configs["scrapers"];
     this.client = (new ClientService()).getClient(clientId);
+    const proxyServer = 'http://proxy-server.scraperapi.com:8001';
     this.browser = await puppeteer
       .use(StealthPlugin())
       .launch({
         executablePath: executablePath(),
         headless: 'new',
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      args: [
+        // `--proxy-server=${proxyServer}`,
+        `--ignore-certificate-errors`,
+      ],
     });
-
     this.page = await this.browser.newPage();
+    // await this.page.authenticate('scraperapi', '09026fc2a5ac92dcdfa9f7c67c1b68c2')
 
     await this.page.setViewport({width: windowSize.width || 1200, height: windowSize.height || 1080});
     await this.page.setUserAgent(this.getUserAgent());

@@ -3,6 +3,7 @@ import { store } from "~root/state";
 import { ElasticSearchService } from "~es/elastic-search.service";
 import { UserRedisModel } from "~user/user-redis-model";
 import { UserService } from "~user/user.service";
+import { McmsDiContainer } from "~helpers/mcms-component.decorator";
 
 export interface ISite {
   id: string;
@@ -82,5 +83,8 @@ export class ClientService {
       console.log('Creating default user');
       await new UserService().store(defaults.user);
     }
+
+
+
   }
 }

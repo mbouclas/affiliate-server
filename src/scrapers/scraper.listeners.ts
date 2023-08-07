@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { OnEvent } from "@nestjs/event-emitter";
-import { IScraperJobPayload, ScraperEvents } from "~scrapers/base-scraper.service";
+import { IScraperFailedJobPayload, IScraperJobPayload, ScraperEvents } from "~scrapers/base-scraper.service";
 import { ClientService } from "~root/client/client.service";
 import { QueueService } from "~root/queue/queue.service";
 
@@ -28,6 +28,11 @@ export class ScraperListeners {
 
   @OnEvent(ScraperEvents.SCRAPE_SUCCESS)
   async onScrapeSuccess(payload: IScraperJobPayload) {
+
+  }
+
+  @OnEvent(ScraperEvents.SCRAPE_FAILED)
+  async onScrapeFailed(payload: IScraperFailedJobPayload) {
 
   }
 

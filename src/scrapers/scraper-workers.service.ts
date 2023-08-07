@@ -6,6 +6,9 @@ import { SharedModule } from "~shared/shared.module";
 import { BaseScraperService, ScraperEvents } from "~scrapers/base-scraper.service";
 import { IGenericObject } from "~models/general";
 import { extractSingleFilterFromObject } from "~helpers/data";
+import { store } from "~root/state";
+import { McmsDiContainer } from "~helpers/mcms-component.decorator";
+import { BaseExternalScraperService } from "~scrapers/base-external-scraper.service";
 
 
 @Injectable()
@@ -23,7 +26,20 @@ export class ScraperWorkersService {
   async worker(job: Job) {
     // Go scrape and add to ES
     console.log('In Worker', job.id);
-    const s = new AmazonScraperService();
+    // Run the scraper
+    const scrapers = store.getState().configs["scrapers"][job.data.clientId][job.data.affiliate];
+
+    const container = McmsDiContainer.get({id: scrapers.scraper});
+    const provider = new container.reference as BaseExternalScraperService;
+    const id = job.data.id;
+    provider.init(job.data.clientId);
+    try {
+      await provider.processUrls([{url: job.data.url, id, clientId: job.data.clientId, affiliate: job.data.affiliate}]);
+    }
+    catch (e) {
+      console.log(`Error scraping ${e.message}`, e);
+    }
+/*    const s = new AmazonScraperService();
     try {
       const id = job.data.id;
       await s.init(job.data.clientId);
@@ -31,7 +47,7 @@ export class ScraperWorkersService {
       await s.processUrls([{url: job.data.url, id, clientId: job.data.clientId, affiliate: job.data.affiliate}]);
     } catch (e) {
       console.log(`Error scraping ${e.message}`, e);
-    }
+    }*/
 
     SharedModule.eventEmitter.emit(ScraperEvents.SCRAPE_SUCCESS, {clientId: job.data.clientId, url: job.data.url, id: job.id});
   }

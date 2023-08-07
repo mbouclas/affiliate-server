@@ -16,7 +16,7 @@ import { ImageService } from "~image/image.service";
 
 @Injectable()
 export class AmazonScraperService extends BaseScraperService {
-  @OnEvent("app.loaded")
+/*  @OnEvent("app.loaded")
   async onAppLoaded() {
     // const s = new AmazonScraperService();
     try {
@@ -26,13 +26,13 @@ export class AmazonScraperService extends BaseScraperService {
     } catch (e) {
       console.log(`Error scraping ${e.message}`, e);
     }
-  }
+  }*/
 
   async scrape(item: IScraperJobPayload) {
     await this.page.goto(item.url, {
       timeout: this.timeout
     });
-
+    await this.page.screenshot({ path: "example.png" });
     console.log("Processing link: ", item.url);
 
     const info = await this.page.evaluate((link) => {

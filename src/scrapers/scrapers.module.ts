@@ -5,6 +5,8 @@ import { BaseScraperService } from './base-scraper.service';
 import { SharedModule } from "~shared/shared.module";
 import { ScraperListeners } from "~scrapers/scraper.listeners";
 import { ScraperWorkersService } from './scraper-workers.service';
+import { ZyteScraperService } from "~scrapers/zyte.scraper.service";
+import { BaseExternalScraperService } from "~scrapers/base-external-scraper.service";
 
 @Module({
   imports: [
@@ -15,6 +17,8 @@ import { ScraperWorkersService } from './scraper-workers.service';
     AmazonScraperService,
     ScraperListeners,
     ScraperWorkersService,
+    ZyteScraperService,
+    BaseExternalScraperService,
   ],
   controllers: [
     ScrapersController
