@@ -22,8 +22,9 @@ export interface IZyteProduct {
   description: string;
   descriptionHtml: string;
   aggregateRating: AggregateRating;
-  color: string;
-  size: string;
+  color?: string;
+  size?: string;
+  style?: string;
   additionalProperties?: (AdditionalProperties)[] | null;
   features?: (string)[] | null;
   url: string;

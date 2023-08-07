@@ -1,8 +1,15 @@
-import { Body, Controller, Delete, Get, Header, Param, Patch, Query, Req, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Header, Param, Patch, Post, Query, Req, UseInterceptors } from "@nestjs/common";
 import { Request } from "express";
 import { ProductService } from "~root/product/product.service";
 import { AppInterceptor } from "~shared/interceptors/app/app.interceptor";
+import { IsString } from "class-validator";
 
+export class PostedProductDto {
+  @IsString()
+  title: string;
+
+  clientId: string;
+}
 
 @Controller('api/product')
 export class ProductController {
@@ -15,6 +22,14 @@ export class ProductController {
     const appName = req.header('x-app-name');
 
     return await new ProductService(appName).find({ limit, page, queryParameters, q: qs }, true);
+  }
+
+  @Post()
+  @UseInterceptors(AppInterceptor)
+  async store(@Req() req: Request, @Body() product: PostedProductDto) {
+    const clientId = req.header('x-app-name');
+    product.clientId = clientId;
+    return await new ProductService(clientId).store(product);
   }
 
   @Get(':id')

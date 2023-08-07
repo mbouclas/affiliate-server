@@ -4,6 +4,9 @@ import { ClientService } from "~root/client/client.service";
 import { IElasticSearchAggregationBucketResult, IElasticSearchFilterMap } from "~es/elastic-search.models";
 import { IGenericObject } from "~models/general";
 import { extractSingleFilterFromObject } from "~helpers/data";
+import { IProductModel } from "~root/product/models/product.model";
+const crypto = require('crypto');
+const slug = require('slug');
 
 @Injectable()
 export class ProductService {
@@ -183,7 +186,7 @@ export class ProductService {
     return {...res, ...{data}};
   }
 
-  async update(filter: IGenericObject, doc: IGenericObject) {
+  async update(filter: IGenericObject, doc: Partial<IProductModel>) {
     const {key, value} = extractSingleFilterFromObject(filter);
     const product = await this.findOne({[key]: value});
     if (!product) {
@@ -191,7 +194,14 @@ export class ProductService {
     }
 
     doc.id = product.id;
-    doc.updatedAt = new Date().toISOString();
+    doc.updatedAt = new Date();
+
+    if (Array.isArray(doc.technicalDetails)) {
+      doc.technicalDetails = doc.technicalDetails.map(detail => {
+        detail.slug = slug(detail.title, {lower: true});
+        return detail;
+      });
+    }
 
     try {
       await this.es.client.update({
@@ -209,9 +219,15 @@ export class ProductService {
     return await this.findOne({[key]: value});
   }
 
-  async store(document: IGenericObject) {
-    document.createdAt = new Date().toISOString();
-    document.updatedAt = new Date().toISOString();
+  async store(document: Partial<IProductModel>) {
+    document.createdAt = new Date();
+    document.updatedAt = new Date();
+    document.title = document.title.trim();
+    document.id = crypto.createHash('md5').update(`${document.clientId}:${document.title}`).digest("hex");
+
+
+    document.slug = slug(document.title, {lower: true});
+    document.active = false;
 
     try {
       await this.es.client.index({
