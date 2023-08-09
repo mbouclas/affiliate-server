@@ -72,16 +72,16 @@ export class AuthService {
     const user = await this.userModel.findOne({email }) as IUserRedisModel;
     console.log('*******', user);
     if (!user) {
-      throw new UserNotFoundException('USER_NOT_FOUND', '500.0' );
+      throw new UserNotFoundException('USER_NOT_FOUND', '1500.0' );
     }
 
     if (typeof user.active === 'undefined' || user.active === false) {
-      throw new UserNotActiveException('USER_NOT_ACTIVE', '500.2')
+      throw new UserNotActiveException('USER_NOT_ACTIVE', '1500.2')
     }
 
     const passwordMatched = await this.hasher.comparePassword(password, user.password);
     if (!passwordMatched) {
-      throw new InvalidCredentialsException('INVALID_CREDENTIALS', '500.1');
+      throw new InvalidCredentialsException('INVALID_CREDENTIALS', '1500.1');
     }
 
     const token = tokenGenerator();

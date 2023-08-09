@@ -25,6 +25,8 @@ import { TagModule } from './tag/tag.module';
 import { ProductCategoryModule } from './product-category/product-category.module';
 import { ImageModule } from './image/image.module';
 import { AuthorizedUserMiddleware } from "~root/auth/middleware/authorized-user.middleware";
+import { AstroModule } from './astro/astro.module';
+import { CmsModule } from './cms/cms.module';
 
 
 @Module({
@@ -48,7 +50,9 @@ import { AuthorizedUserMiddleware } from "~root/auth/middleware/authorized-user.
     QueueModule,
     TagModule,
     ProductCategoryModule,
-    ImageModule
+    ImageModule,
+    AstroModule,
+    CmsModule
   ],
   controllers: [AppController],
   providers: [

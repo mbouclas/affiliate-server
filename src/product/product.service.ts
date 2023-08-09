@@ -28,8 +28,10 @@ export class ProductService {
     'id',
     'sku',
     'description',
+    'about',
   ];
 
+  // Fields not included in aggregations
   protected searchFields: IElasticSearchFilterMap[] = [
     {
       name: 'id',
@@ -37,8 +39,23 @@ export class ProductService {
       key: '_id',
       isKeyword: true,
     },
+    {
+      name: 'active',
+      type: "simple",
+      key: 'active',
+      isKeyword: false,
+    },
+    {
+      name: 'sku',
+      type: "simple",
+      key: 'sku',
+      isKeyword: false,
+    },
   ];
 
+  // any of these fields can be searched on using the [] notation
+  // categories[] = 'slug'
+  // rating[]= 1-2
   protected aggregationFields: IElasticSearchFilterMap[] = [
     {
       name: 'categories',
@@ -46,6 +63,26 @@ export class ProductService {
       type: "nested",
       key: 'slug',
       buckets: ['title.keyword', 'slug'],
+      isKeyword: true,
+      size: 60,
+    },
+/*    {
+      name: 'technicalDetails',
+      alias: 'colour',
+      multilingual: false,
+      type: "nested",
+      key: 'slug',
+      buckets: ['value.keyword', 'slug'],
+      isKeyword: true,
+      size: 100,
+      fixSlugs: true,
+    },*/
+    {
+      name: 'manufacturer',
+      multilingual: false,
+      type: "nested",
+      key: 'slug',
+      buckets: ['name.keyword', 'slug'],
       isKeyword: true,
       size: 60,
     },
@@ -65,12 +102,42 @@ export class ProductService {
       size: this.defaultAggregationSize,
       field: 'price',
       ranges: [
+        { to: 10.0 },
+        { from: 10.0, to: 50.0 },
+        { from: 50.0, to: 100.0 },
+        { from: 100.0, to: 200.0 },
+        { from: 200.0, to: 500.0 },
+        { from: 500.0 }
+      ],
+      boost: 2,
+    },
+    {
+      name: 'rating',
+      type: "range",
+      isKeyword: false,
+      size: this.defaultAggregationSize,
+      field: 'rating',
+      ranges: [
         { to: 1.0 },
-        { from: 1.0, to: 5.0 },
-        { from: 5.0, to: 10.0 },
-        { from: 10.0, to: 20.0 },
-        { from: 20.0, to: 50.0 },
-        { from: 50.0 }
+        { from: 1.0, to: 2.0 },
+        { from: 3.0, to: 4.0 },
+        { from: 4.0 }
+      ],
+      boost: 2,
+    },
+    {
+      name: 'ratings',
+      type: "range",
+      isKeyword: false,
+      size: this.defaultAggregationSize,
+      field: 'ratings',
+      ranges: [
+        { to: 10.0 },
+        { from: 10.0, to: 500.0 },
+        { from: 500.0, to: 1000.0 },
+        { from: 1000.0, to: 3000.0 },
+        { from: 3000.0, to: 5000.0 },
+        { from: 5000.0 }
       ],
       boost: 2,
     },

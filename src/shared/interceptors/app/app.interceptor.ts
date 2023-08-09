@@ -9,13 +9,13 @@ export class AppInterceptor implements NestInterceptor {
 
     if (!headers['x-app-name']) {
       context.switchToHttp().getResponse().status(500);
-      return of({success: false, reason: 'NO_APP_SET', code: `500.1`});
+      return of({success: false, reason: 'NO_APP_SET', code: `1500.1`});
     }
 
     const client = new ClientService().getClient(headers['x-app-name']);
     if (!client) {
       context.switchToHttp().getResponse().status(500);
-      return of({success: false, reason: 'INVALID_APP', code: `500.2`});
+      return of({success: false, reason: 'INVALID_APP', code: `1500.2`});
     }
 
     return next.handle();

@@ -23,12 +23,12 @@ const companion = require('@uppy/companion');
 const { app: companionApp } = companion.app({
   server: {
     host: process.env.UPPY_SERVER,
+    protocol: 'http',
     path: '/companion',
   },
   filePath: uploadDir,
   secret: 'blah blah',
   debug: true,
-  uploadUrls: true,
 });
 export const redisSessionStore = new RedisStore({ client: createRedisClient(), ttl: tokenExpiry });
 export let app: NestExpressApplication;

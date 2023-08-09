@@ -48,6 +48,13 @@ export class FileUploaderController {
 
   }
 
+  @Post('upload-single')
+  @UseInterceptors(AppInterceptor)
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadSingleFile(@UploadedFile() file: Express.Multer.File, @Body() body: IFileUploadMetaData, @Req() req: Request) {
+    return  await this.service.multiple([file], body, req.header('x-app-name'));
+  }
+
 
   @Get('status/:id')
   async getUploadStatus(@Param('id') jobId: string) {

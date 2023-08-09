@@ -37,7 +37,7 @@ export class ScraperWorkersService {
       await provider.processUrls([{url: job.data.url, id, clientId: job.data.clientId, affiliate: job.data.affiliate}]);
     }
     catch (e) {
-      console.log(`Error scraping ${e.message}`, e);
+      console.log(`Error scraping ${e.message}`, e, job);
     }
 /*    const s = new AmazonScraperService();
     try {

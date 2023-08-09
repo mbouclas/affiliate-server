@@ -6,6 +6,7 @@ export interface IZyteProductResponse {
   url: string;
   statusCode: number;
   product: IZyteProduct;
+  browserHtml: string;
 }
 export interface IZyteProduct {
   id?: string|number;

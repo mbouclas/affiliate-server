@@ -29,6 +29,7 @@ export class ZyteScraperService extends BaseExternalScraperService {
       body: JSON.stringify({
         url,
         product: true,
+        browserHtml: true,
       }),
       headers:{
         Authorization: `Basic ${btoa(`${apiKey}:`)}`,
@@ -39,18 +40,33 @@ export class ZyteScraperService extends BaseExternalScraperService {
     return await response.json();
   }
   async scrape(item: IScraperJobPayload) {
+    console.log(`Scraping ${item.url}`)
     const response: IZyteProductResponse = await this.callApi(item.url);
-    console.log(response)
     let product = response.product;
     product.id = item.id;
     product.clientId = item.clientId;
     product.affiliateUrl = item.url;
-    await this.processImages(product);
+    try {
+      const images = this.extractImagesFromHtml(response.browserHtml);
+      if (images.length > 0) {
+        product.images = images;
+      }
+    }
+    catch (e) {
+      console.log(`Error extracting images from html ${e}`, e);
+    }
+
+    try {
+      await this.processImages(product);
+    }
+    catch (e) {
+      console.log(`Error processing images ${e}`, e);
+    }
     product.slug = slug(product.name, {lower: true});
     product.title = product.name;
     product.thumb = await this.processThumb(product.mainImage, product.id as string);
-    product.categories = await this.processCategories(product.breadcrumbs.map(c => ({title: c.name, slug: slug(c.name, {lower: true})})));
-
+    // product.categories = await this.processCategories(product.breadcrumbs.map(c => ({title: c.name, slug: slug(c.name, {lower: true})})));
+    product.categories = [];
 
     await this.formatProductForElasticSearch(product)
     try {
@@ -110,5 +126,18 @@ export class ZyteScraperService extends BaseExternalScraperService {
 
     // console.log(temp)
     return temp;
+  }
+
+  private extractImagesFromHtml(browserHtml: string) {
+    const pattern = /"hiRes":"([^"]+)"/g;
+    const matches = browserHtml.match(pattern);
+
+    if (Array.isArray(matches) && matches.length > 0) {
+      return matches.map(function(match) {
+        return {url: match.match(/"hiRes":"([^"]+)"/)[1]};
+      });
+    }
+
+    return [];
   }
 }
