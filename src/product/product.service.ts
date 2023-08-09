@@ -160,7 +160,7 @@ export class ProductService {
     return res.data[0]
   }
 
-  async find(args: ISearchArgs, withAggregations = false) {
+  async find(args: ISearchArgs, withAggregations = false, debug = false) {
     args.page = args.page || 1;
     args.limit = args.limit || 10;
     args.queryParameters = args.queryParameters || {};
@@ -173,7 +173,7 @@ export class ProductService {
       .setAggregationFields(this.aggregationFields)
       .setSearchWithAggregations(withAggregations)
       .addSort(this.formatSort(args.queryParameters.sort), this.formatSortWay(args.queryParameters.way))
-      .setDebugMode(this.debugMode);
+      .setDebugMode(debug);
 
     if (args.q) {
       q.filterAggregationsBasedOnQueryString(args.q);
