@@ -165,11 +165,12 @@ export class BaseRedisModel {
 
   async update(id: string, data: IGenericObject) {
     const entity = await this.getById(id);
+
     for (const key in data) {
       entity[key] = data[key];
     }
 
-    if (data['title']) {
+    if (data['title'] && !data['slug']) {
       entity['slug'] = this.slugify(data['title']);
     }
 

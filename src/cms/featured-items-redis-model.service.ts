@@ -23,27 +23,20 @@ export interface IFeatureItemRedisModel  {
   id: 'FeatureItemRedisModel',
   type: 'service'
 })
-export class FeatureItemRedisModel extends BaseRedisModel {
-  defaultSort = 'title';
+export class FeaturedItemsRedisModel extends BaseRedisModel {
+  defaultSort = 'id';
   defaultWay: 'ASC' | 'DESC' = 'ASC';
   searchableFields: ISearchableField[] = [
-    {
-      name: 'title',
-      type: 'text'
-    },
-    ];
+
+  ];
 
   schema() {
-    return  new Schema('featuredItem', {
-      title: { type: 'text', sortable: true },
-      caption: { type: 'string' },
-      slug: { type: 'string' },
-      itemId: { type: 'string' },
-      itemType: { type: 'string' },
-      parentId: { type: 'string' },
+    return  new Schema('featuredItems', {
+      id: { type: 'string' },
+      items: { type: 'string[]' },
       clientId: { type: 'string' },
-      metaData: {type: 'string', path:'$.metaData*'},
-      thumb: {type: 'string', path:'$.thumb*'},
+      metaData: { type: 'string', path: '$.metaData*' },
+      thumb: { type: 'string', path: '$.thumb*' },
       createdAt: { type: 'date', sortable: true },
       updatedAt: { type: 'date', sortable: true },
     });

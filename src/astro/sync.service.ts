@@ -4,6 +4,9 @@ import { ProductCategoryService } from "~root/product-category/product-category.
 import { ProductCategoryRedisModel } from "~root/product-category/product-category-redis-model";
 import { IBaseFlatTree, toTree } from "~helpers/tree";
 import { TagRedisModel } from "~tag/tag-redis.model";
+import { HeroRedisModel } from "~cms/hero-redis-model";
+import { FeaturedCategoriesModel } from "~cms/featuredCategoriesModel";
+import { FeaturedItemsRedisModel } from "~cms/featured-items-redis-model.service";
 
 @Injectable()
 export class SyncService {
@@ -24,5 +27,26 @@ export class SyncService {
     const tags = await s.find({ clientId, limit: 1000, page: 1 });
 
     return tags.data;
+  }
+
+  async getHero(clientId: string) {
+    const s = new HeroRedisModel();
+    const hero = await s.find({ clientId, limit: 1000, page: 1 });
+
+    return hero.data;
+  }
+
+  async getFeaturedCategories(clientId: string) {
+    const s = new FeaturedCategoriesModel();
+    const featuredCategories = await s.find({ clientId, limit: 1000, page: 1 });
+
+    return featuredCategories.data[0]['categories'];
+  }
+
+  async getFeaturedItems(clientId: string) {
+    const s = new FeaturedItemsRedisModel();
+    const items = await s.find({ clientId, limit: 1000, page: 1 });
+
+    return items.data[0]['items'];;
   }
 }

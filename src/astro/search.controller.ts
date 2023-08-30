@@ -10,7 +10,7 @@ export class SearchController {
   @Get()
   @UseInterceptors(AppInterceptor)
   async find(@Req() req: Request, @Query('q') qs: string, @Query('limit') limit = 10) {
-    const queryParameters = Object.assign({}, req.query);
+    const queryParameters = Object.assign({active: true}, req.query);
     const page = req.query.page || 1 as any;
     const clientID = req.header('x-app-name');
     const service = new ProductService(clientID);
@@ -23,7 +23,7 @@ export class SearchController {
   @UseInterceptors(QuickSearchResultsInterceptor)
   @UseInterceptors(AppInterceptor)
   async quick(@Req() req: Request, @Query('q') qs: string, @Query('limit') limit = 10) {
-    const queryParameters = Object.assign({}, req.query);
+    const queryParameters = Object.assign({active: true}, req.query);
     const page = req.query.page || 1 as any;
     const clientID = req.header('x-app-name');
     const service = new ProductService(clientID);

@@ -24,6 +24,14 @@ export class ProductController {
     return await new ProductService(appName).find({ limit, page, queryParameters, q: qs }, true);
   }
 
+  @Get('quick')
+  @UseInterceptors(AppInterceptor)
+  async quickSearch(@Req() req: Request, @Query('q') qs: string, @Query('limit') limit = 10) {
+    const page = req.query.page || 1 as any;
+    const appName = req.header('x-app-name');
+    return await new ProductService(appName).find({ limit, page, queryParameters: {}, q: qs }, true);
+  }
+
   @Post()
   @UseInterceptors(AppInterceptor)
   async store(@Req() req: Request, @Body() product: PostedProductDto) {

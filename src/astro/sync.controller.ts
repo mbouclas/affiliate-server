@@ -16,6 +16,9 @@ export class SyncController {
       products: await service.getProducts(clientId),
       categories: await service.getCategories(clientId),
       tags: await service.getTags(clientId),
+      hero: await service.getHero(clientId),
+      featuredCategories: await service.getFeaturedCategories(clientId),
+      featuredItems: await service.getFeaturedItems(clientId),
     }
   }
 }
