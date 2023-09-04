@@ -1,103 +1,72 @@
 import { Injectable } from "@nestjs/common";
 import { ElasticSearchService, ISearchArgs } from "~es/elastic-search.service";
-import { ClientService } from "~root/client/client.service";
 import { IElasticSearchAggregationBucketResult, IElasticSearchFilterMap } from "~es/elastic-search.models";
+import { ClientService } from "~root/client/client.service";
 import { IGenericObject, IPagination } from "~models/general";
+import { IPageModel } from "~cms/models/page.model";
 import { extractSingleFilterFromObject } from "~helpers/data";
-import { IProductModel } from "~root/product/models/product.model";
 import { TagService } from "~tag/tag.service";
 const crypto = require('crypto');
 const slug = require('slug');
 
 @Injectable()
-export class ProductService {
+export class PageService {
   protected es: ElasticSearchService;
   protected client;
-  protected defaultSort = 'updatedAt';
-  protected defaultWay: 'asc'|'desc' = 'desc';
+  protected defaultSort = "updatedAt";
+  protected defaultWay: "asc" | "desc" = "desc";
   protected allowedSortFields = [
-    'updatedAt', 'price', 'title'
+    "updatedAt", "title"
   ];
   protected defaultAggregationSize = 30;
   protected debugMode = false;
-  protected hiddenFields = [
-
-  ];
+  protected hiddenFields = [];
 
   protected autoCompleteFields = [
-    'title',
-    'id',
-    'sku',
-    'description',
-    'about',
+    "title",
+    "id",
+    "description",
+    "excerpt"
   ];
+
 
   // Fields not included in aggregations
   protected searchFields: IElasticSearchFilterMap[] = [
     {
-      name: 'id',
+      name: "id",
       type: "simple",
-      key: '_id',
-      isKeyword: true,
+      key: "_id",
+      isKeyword: true
     },
     {
-      name: 'active',
+      name: "active",
       type: "simple",
-      key: 'active',
-      isKeyword: false,
+      key: "active",
+      isKeyword: false
     },
     {
-      name: 'sku',
-      type: "simple",
-      key: 'sku',
-      isKeyword: false,
-    },
-    {
-      name: 'thumbCount',
+      name: "thumbCount",
       type: "nested",
-      key: 'thumb.id.keyword',
-      isKeyword: false,
+      key: "thumb.id.keyword",
+      isKeyword: false
     },
     {
-      name: 'imageCount',
+      name: "imageCount",
       type: "nested",
-      key: 'images.id.keyword',
-      isKeyword: false,
-    },
+      key: "images.id.keyword",
+      isKeyword: false
+    }
   ];
 
-  // any of these fields can be searched on using the [] notation
-  // categories[] = 'slug'
-  // rating[]= 1-2
   protected aggregationFields: IElasticSearchFilterMap[] = [
     {
-      name: 'categories',
+      name: "categories",
       multilingual: false,
       type: "nested",
-      key: 'slug',
-      buckets: ['title.keyword', 'slug'],
+      key: "slug",
+      buckets: ["title.keyword", "slug"],
       isKeyword: true,
-      size: 60,
-    },
-/*    {
-      name: 'technicalDetails',
-      alias: 'colour',
-      multilingual: false,
-      type: "nested",
-      key: 'slug',
-      buckets: ['value.keyword', 'slug'],
-      isKeyword: true,
-      size: 100,
-      fixSlugs: true,
-    },*/
-    {
-      name: 'manufacturer',
-      multilingual: false,
-      type: "nested",
-      key: 'slug',
-      buckets: ['name.keyword', 'slug'],
-      isKeyword: true,
-      size: 60,
+      size: 60
     },
     {
       name: 'tags',
@@ -108,59 +77,12 @@ export class ProductService {
       isKeyword: true,
       size: 60,
     },
-    {
-      name: 'price',
-      type: "range",
-      isKeyword: false,
-      size: this.defaultAggregationSize,
-      field: 'price',
-      ranges: [
-        { to: 10.0 },
-        { from: 10.0, to: 50.0 },
-        { from: 50.0, to: 100.0 },
-        { from: 100.0, to: 200.0 },
-        { from: 200.0, to: 500.0 },
-        { from: 500.0 }
-      ],
-      boost: 2,
-    },
-    {
-      name: 'rating',
-      type: "range",
-      isKeyword: false,
-      size: this.defaultAggregationSize,
-      field: 'rating',
-      ranges: [
-        { to: 1.0 },
-        { from: 1.0, to: 2.0 },
-        { from: 3.0, to: 4.0 },
-        { from: 4.0 }
-      ],
-      boost: 2,
-    },
-    {
-      name: 'ratings',
-      type: "range",
-      isKeyword: false,
-      size: this.defaultAggregationSize,
-      field: 'ratings',
-      ranges: [
-        { to: 10.0 },
-        { from: 10.0, to: 500.0 },
-        { from: 500.0, to: 1000.0 },
-        { from: 1000.0, to: 3000.0 },
-        { from: 3000.0, to: 5000.0 },
-        { from: 5000.0 }
-      ],
-      boost: 2,
-    },
-    ];
+  ];
+
   constructor(protected clientId: string) {
     this.client = new ClientService().getClient(clientId);
     this.es = ElasticSearchService.newInstance();
   }
-
-
 
   getEs() {
     return this.es;
@@ -175,7 +97,7 @@ export class ProductService {
     return res.data[0]
   }
 
-  async find(args: ISearchArgs, withAggregations = false, debug = false): Promise<IPagination<IProductModel>> {
+  async find(args: ISearchArgs, withAggregations = false, debug = false): Promise<IPagination<IPageModel>> {
     args.page = args.page || 1;
     args.limit = args.limit || 10;
     args.queryParameters = args.queryParameters || {};
@@ -183,7 +105,7 @@ export class ProductService {
     const q = this.es
       .resetIndex()
       .resetFilters()
-      .setIndex(this.client.elasticSearch.index)
+      .setIndex(this.client.cms.elasticSearch.index)
       .setAutoCompleteFields(this.autoCompleteFields)
       .setAggregationFields(this.aggregationFields)
       .setSearchWithAggregations(withAggregations)
@@ -265,25 +187,18 @@ export class ProductService {
       return item;
     });
 
-    return {...res, ...{data}} as unknown as IPagination<IProductModel>;
+    return {...res, ...{data}} as unknown as IPagination<IPageModel>;
   }
 
-  async update(filter: IGenericObject, doc: Partial<IProductModel>) {
+  async update(filter: IGenericObject, doc: Partial<IPageModel>) {
     const {key, value} = extractSingleFilterFromObject(filter);
-    const product = await this.findOne({[key]: value});
-    if (!product) {
-      throw new Error(`Product with ${key} ${value} not found`);
+    const item = await this.findOne({[key]: value});
+    if (!item) {
+      throw new Error(`Page with ${key} ${value} not found`);
     }
 
-    doc.id = product.id;
+    doc.id = item.id;
     doc.updatedAt = new Date();
-
-    if (Array.isArray(doc.technicalDetails)) {
-      doc.technicalDetails = doc.technicalDetails.map(detail => {
-        detail.slug = slug(detail.title, {lower: true});
-        return detail;
-      });
-    }
 
     if (Array.isArray(doc.tags)) {
       for (let idx = 0; doc.tags.length > idx; idx++) {
@@ -301,21 +216,21 @@ export class ProductService {
 
     try {
       await this.es.client.update({
-        index: this.client.elasticSearch.index,
-        id: product.id,
+        index: this.client.cms.elasticSearch.index,
+        id: item.id,
         doc_as_upsert: false,
         doc,
         refresh: true,
       });
     }
     catch (e) {
-      console.log(`Error saving ${product.slug} to ES`, e);
+      console.log(`Error saving ${item.slug} to ES`, e);
     }
 
     return await this.findOne({[key]: value});
   }
 
-  async store(document: Partial<IProductModel>) {
+  async store(document: Partial<IPageModel>) {
     document.createdAt = new Date();
     document.updatedAt = new Date();
     document.title = document.title.trim();
@@ -328,7 +243,7 @@ export class ProductService {
     try {
       await this.es.client.index({
         id: document.id,
-        index: this.client.elasticSearch.index,
+        index: this.client.cms.elasticSearch.index,
         document,
         refresh: true,
       });
@@ -342,20 +257,20 @@ export class ProductService {
 
   async delete(filter: IGenericObject) {
     const {key, value} = extractSingleFilterFromObject(filter);
-    const product = await this.findOne({[key]: value});
-    if (!product) {
+    const item = await this.findOne({[key]: value});
+    if (!item) {
       throw new Error(`Product with ${key} ${value} not found`);
     }
 
     try {
       await this.es.client.delete({
-        index: this.client.elasticSearch.index,
-        id: product.id,
+        index: this.client.cms.elasticSearch.index,
+        id: item.id,
         refresh: true,
       });
     }
     catch (e) {
-      console.log(`Error deleting ${product.slug} from ES`, e);
+      console.log(`Error deleting ${item.slug} from ES`, e);
     }
   }
 
@@ -377,11 +292,6 @@ export class ProductService {
     return aggregations;
   }
 
-  /**
-   * Look up in cache to get the proper slugs for this type of doc
-   * @param aggregation
-   * @private
-   */
   private fixAggregationSlug(aggregation: IElasticSearchAggregationBucketResult, field: IElasticSearchFilterMap) {
 
     /*let data;
@@ -412,8 +322,6 @@ export class ProductService {
   }
 
 
-
-
   protected formatSort(sort: string) {
     if (this.allowedSortFields.indexOf(sort) !== -1) {return sort}
 
@@ -428,30 +336,30 @@ export class ProductService {
 
   async changeThumb(id: string, imageId: string) {
     // find the product
-    const product = await this.findOne({id});
+    const item = await this.findOne({id});
     // find the image in the images
-    const foundIndex = product.images.findIndex(i => i.id === imageId);
-    const thumb = Object.assign({}, product.images[foundIndex]);
+    const foundIndex = item.images.findIndex(i => i.id === imageId);
+    const thumb = Object.assign({}, item.images[foundIndex]);
 
     // remove this image from the list
-    product.images.splice(foundIndex, 1);
+    item.images.splice(foundIndex, 1);
     //add the existing thumb to the bottom of the list
-    product.images.push(product.thumb);
-    product.thumb = thumb;
+    item.images.push(item.thumb);
+    item.thumb = thumb;
 
-    product.images = product.images.map((img,idx) => ({...img, order: idx}));
+    item.images = item.images.map((img,idx) => ({...img, order: idx}));
 
     try {
       await this.update({ id }, {
-        images: product.images,
-        thumb: product.thumb,
+        images: item.images,
+        thumb: item.thumb,
       });
     }
     catch (e) {
-      console.log(`Error saving ${product.slug} to ES`, e);
-      throw new Error(`Error saving ${product.slug} to ES`);
+      console.log(`Error saving ${item.slug} to ES`, e);
+      throw new Error(`Error saving ${item.slug} to ES`);
     }
 
-    return product;
+    return item;
   }
 }

@@ -2,6 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { HeroRedisModel, IHeroRedisModel } from "~cms/hero-redis-model";
 import { FeaturedCategoriesModel } from "~cms/featuredCategoriesModel";
 import { FeaturedItemsRedisModel } from "~cms/featured-items-redis-model.service";
+import { ClientService } from "~root/client/client.service";
+import { ElasticSearchService } from "~es/elastic-search.service";
+import { SharedModule } from "~shared/shared.module";
+import { AppModule } from "~root/app.module";
 
 export enum CmsKeys {
   HERO = 'hero',
@@ -11,6 +15,31 @@ export enum CmsKeys {
 
 @Injectable()
 export class CmsService {
+
+  async onApplicationBootstrap() {
+    // Wait for everything to finish loading
+    setTimeout(async () => {
+      await new CmsService().checkIfAllElasticSearchIndexesArePresent();
+    }, 1000)
+
+  }
+
+  async checkIfAllElasticSearchIndexesArePresent() {
+    const clients = new ClientService().getClients();
+    const es = ElasticSearchService.newInstance();
+
+    for (const client of clients) {
+      if (!client.cms) {continue;}
+      const indexExists = await es.indexExists(client.cms.elasticSearch.index);
+      if (indexExists) {
+        // console.log(`Index ${client.cms.elasticSearch.index} exists`);
+        continue;
+      }
+
+      await es.createIndex(client.cms.elasticSearch.index, client.cms.elasticSearch.indexTemplate);
+    }
+  }
+
   async storeHero(data: IHeroRedisModel, removePrevious = true) {
     const service = new HeroRedisModel();
     // delete all previous ones

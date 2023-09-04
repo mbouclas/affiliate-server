@@ -12,6 +12,7 @@ import flash = require('connect-flash');
 import * as session from 'express-session';
 import * as compression from 'compression';
 import * as cookieParser from 'cookie-parser';
+import * as process from "process";
 export const projectRoot = resolve(join(__dirname, '../../'));
 const viewsDir = resolve(join(__dirname, '../../', 'views'));
 const publicDir = resolve(join(__dirname, '../../', 'public'));
@@ -29,6 +30,7 @@ const { app: companionApp } = companion.app({
   filePath: uploadDir,
   secret: 'blah blah',
   debug: true,
+  uploadUrls: process.env.COMPANION_UPLOAD_URLS.split(','),
 });
 export const redisSessionStore = new RedisStore({ client: createRedisClient(), ttl: tokenExpiry });
 export let app: NestExpressApplication;

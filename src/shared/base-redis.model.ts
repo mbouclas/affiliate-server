@@ -58,7 +58,8 @@ export class BaseRedisModel {
     const repo = await this.getRepo();
     let s = this.buildQuery(filters, repo);
 
-    // console.log(await s.return.count());
+    // console.log(await s.return.count(), limit);
+
     const res = await s.return.page(offset, limit) as unknown as IBaseRedisModel[];
     return {
       data: res,

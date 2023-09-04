@@ -9,6 +9,7 @@ import { ClientService } from "~root/client/client.service";
 import { v4 } from "uuid";
 import { UploadApiResponse } from "cloudinary";
 import * as process from "process";
+import { ImageService } from "~image/image.service";
 const crypto = require('crypto');
 
 export interface IFileUploadMetaData {
@@ -77,15 +78,22 @@ export class UploaderService {
       if (isImage(files[i].originalname)) {
         try {
           const r = await this.handleImage(files[i], metaData, cloudinaryConfig);
-          res.push({...r, ...{ metaData }})
+          res.push({...r, ...{ metaData }});
+
+          await (new ImageService()).store({
+            id: r.id,
+            clientId,
+            originalUrl: files[i].path,
+            url: r.url,
+            cloudinaryId: r.cloudinaryId,
+          });
+
+
           continue;
         }
         catch (e) {
           console.log('Error 507', e)
         }
-/*        const image = await (new ImageService()).findOne({uuid: r.id});
-        res.push({...image, ...{ metaData }});*/
-
       }
 
     }

@@ -1,4 +1,4 @@
-import { IBaseImageModel } from "~models/general";
+import { IBaseImageModel, ISeoFields, ITagModel } from "~models/general";
 
 export interface IProductModel {
     id: string;
@@ -15,21 +15,10 @@ export interface IProductModel {
     clientId: string;
     technicalDetails: ITechnicalDetail[];
     seo: ISeoFields;
+    tags?: ITagModel[];
 }
 
-export interface ISeoFields {
-    title: string;
-    description: string;
-    keywords: string;
-    image?: string;
-    ogTitle?: string;
-    ogDescription?: string;
-    ogImage?: string;
-    ogUrl?: string;
-    ogType?: string;
-    ogSiteName?: string;
-    ogLocale?: string;
-}
+
 
 export interface ITechnicalDetail {
     title: string;

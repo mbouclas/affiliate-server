@@ -82,4 +82,19 @@ export interface IBaseImageModel {
     caption?: string;
     alt?: string;
     title?: string;
+    usageCount?: number;
+}
+
+export interface ISeoFields {
+    title: string;
+    description: string;
+    keywords: string;
+    image?: string;
+    ogTitle?: string;
+    ogDescription?: string;
+    ogImage?: string;
+    ogUrl?: string;
+    ogType?: string;
+    ogSiteName?: string;
+    ogLocale?: string;
 }
