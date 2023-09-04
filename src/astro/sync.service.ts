@@ -40,13 +40,13 @@ export class SyncService {
     const s = new FeaturedCategoriesModel();
     const featuredCategories = await s.find({ clientId, limit: 1000, page: 1 });
 
-    return Array.isArray(featuredCategories.data) ? featuredCategories.data[0]['categories'] : [];
+    return Array.isArray(featuredCategories.data) && featuredCategories.data[0] ? featuredCategories.data[0]['categories'] : [];
   }
 
   async getFeaturedItems(clientId: string) {
     const s = new FeaturedItemsRedisModel();
     const items = await s.find({ clientId, limit: 1000, page: 1 });
 
-    return Array.isArray(items.data) ? items.data[0]['items'] : [];
+    return Array.isArray(items.data) && items.data[0] ? items.data[0]['items'] : [];
   }
 }
