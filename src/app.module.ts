@@ -27,6 +27,7 @@ import { ImageModule } from './image/image.module';
 import { AuthorizedUserMiddleware } from "~root/auth/middleware/authorized-user.middleware";
 import { AstroModule } from './astro/astro.module';
 import { CmsModule } from './cms/cms.module';
+import { PreviewsModule } from './previews/previews.module';
 
 
 @Module({
@@ -52,7 +53,8 @@ import { CmsModule } from './cms/cms.module';
     ProductCategoryModule,
     ImageModule,
     AstroModule,
-    CmsModule
+    CmsModule,
+    PreviewsModule
   ],
   controllers: [AppController],
   providers: [

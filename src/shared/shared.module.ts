@@ -1,11 +1,8 @@
-import { Module, OnModuleInit } from "@nestjs/common";
+import { Logger, Module, OnModuleInit } from "@nestjs/common";
 import { EventEmitter2 } from "@nestjs/event-emitter";
 import { ModuleRef } from "@nestjs/core";
 import { AppModule } from "~root/app.module";
-import { CacheModule } from '@nestjs/cache-manager';
-import * as redisStore from 'cache-manager-redis-store';
-import type { RedisClientOptions } from 'redis';
-import { HttpModule } from "@nestjs/axios";
+import { HttpModule, HttpService } from "@nestjs/axios";
 import { ElasticSearchModule } from "~es/elastic-search.module";
 import { RedisService } from './services/redis.service';
 import { createClient } from "redis";
@@ -36,12 +33,15 @@ export class SharedModule implements OnModuleInit {
   static eventEmitter: EventEmitter2;
   static moduleRef: ModuleRef;
   static redisClient: ReturnType<typeof createClient>;
-
+  static http: HttpService;
+  protected readonly logger = new Logger(SharedModule.name);
+  public static readonly logger = new Logger(SharedModule.name);
   constructor(
     private m: ModuleRef,
-
+    http: HttpService,
   ) {
     SharedModule.eventEmitter = AppModule.eventEmitter;
+    SharedModule.http = http;
   }
 
   async onModuleInit() {

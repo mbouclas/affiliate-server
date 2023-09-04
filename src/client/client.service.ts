@@ -34,7 +34,7 @@ export class ClientService {
     if (!clientConfig) {return null;}
 
     if (!key.includes('.') && !obj) {
-      return store.getState()[key];
+      return clientConfig[key];
     }
 
     const keys = key.split('.'); // Split the key into an array of nested keys

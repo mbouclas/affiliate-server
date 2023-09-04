@@ -6,10 +6,15 @@ import { IGenericObject, IPagination } from "~models/general";
 import { extractSingleFilterFromObject } from "~helpers/data";
 import { IProductModel } from "~root/product/models/product.model";
 import { TagService } from "~tag/tag.service";
+import { McmsDi } from "~helpers/mcms-component.decorator";
 const crypto = require('crypto');
 const slug = require('slug');
 
 @Injectable()
+@McmsDi({
+  id: 'ProductService',
+  type: 'service'
+})
 export class ProductService {
   protected es: ElasticSearchService;
   protected client;
